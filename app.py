@@ -16,9 +16,6 @@ app = Flask(__name__)
 MEDICALBOT_PINECONE_API_KEY = os.getenv("MEDICALBOT_PINECONE_API_KEY")
 GOOGLE_GEN_AI = os.getenv("GOOGLE_GEN_AI")
 
-# os.environ["MEDICALBOT_PINECONE_API_KEY"] = MEDICALBOT_PINECONE_API_KEY
-# os.environ["GOOGLE_GEN_AI"] = GOOGLE_GEN_AI
-
 embeddings = download_embedding()
 
 index_name = "medical-chatbot"
