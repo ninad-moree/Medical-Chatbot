@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MediCare AI | Medical Assistant</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style_v2.css') }}">
+    </head>
+
+    <body>
+        <div class="app">
+
+            <header class="topbar">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <div class="brand-name">MediCare <span>AI</span></div>
+                        <div class="brand-subtitle">Your health information assistant</div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="secure-label">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        Health information assistant
+                    </div>
+                </div>
+            </header>
+
+            <main class="main">
+                <section class="welcome">
+                    <div class="eyebrow">
+                        <i class="fa-solid fa-sparkles"></i>
+                        AI HEALTH ASSISTANT
+                    </div>
+                    <h1>How can I help you today?</h1>
+                    <p>
+                        Ask a health-related question and get helpful information
+                        powered by AI and your medical knowledge base.
+                    </p>
+                </section>
+
+                <section class="chat-card">
+                    <div class="chat-header">
+                        <div class="assistant-info">
+                            <div class="assistant-avatar">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <div class="assistant-name">Medical Assistant</div>
+                                <div class="assistant-status">
+                                    <span class="status-dot"></span>
+                                    Ready to answer your questions
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="header-tag">
+                            <i class="fa-solid fa-book-medical"></i>
+                            Medical knowledge base
+                        </div>
+                    </div>
+
+                    <div id="messageFormeight" class="messages" aria-live="polite">
+                        <div class="date-divider">
+                            <span>YOUR CONVERSATION</span>
+                        </div>
+
+                        <div class="message-row bot">
+                            <div class="message-avatar">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-author">Medical Assistant</div>
+                                <div class="bubble">
+                                    Hello! Welcome to MediCare AI. 👋
+
+                                    I'm here to help you understand health topics and answer general medical questions. What would you like to know today?
+                                </div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="suggestions" id="suggestions">
+                        <div class="suggestions-label">Try asking</div>
+                        <div class="suggestion-list">
+                            <button type="button" class="suggestion"
+                                data-question="What are common causes of headaches?">
+                                Common headache causes
+                            </button>
+                            <button type="button" class="suggestion"
+                                data-question="How can I improve my sleep quality?">
+                                Better sleep
+                            </button>
+                            <button type="button" class="suggestion"
+                                data-question="What are the symptoms of dehydration?">
+                                Dehydration symptoms
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="messageArea" class="composer">
+                        <div class="input-shell">
+                            <input
+                                type="text"
+                                id="text"
+                                name="msg"
+                                placeholder="Ask your health question..."
+                                autocomplete="off"
+                                aria-label="Your health question"
+                                required
+                            >
+
+                            <button type="submit" id="send" class="send-button"
+                                aria-label="Send message">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                        </div>
+
+                        <div class="composer-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            AI can make mistakes. This assistant does not replace a qualified healthcare professional.
+                        </div>
+                    </form>
+                </section>
+
+                <footer class="footer">
+                    For emergencies or severe symptoms, contact local emergency services.
+                    Do not rely on this chatbot for emergency diagnosis or treatment.
+                </footer>
+            </main>
+        </div>
+
+        <script>
+            const form = document.getElementById("messageArea");
+            const input = document.getElementById("text");
+            const messages = document.getElementById("messageFormeight");
+            const sendButton = document.getElementById("send");
+            const suggestions = document.getElementById("suggestions");
+
+            let isWaiting = false;
+
+            function getTime() {
+                return new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+
+            function scrollToBottom() {
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            // Build message elements safely without inserting user/AI text as HTML.
+            function addMessage(text, sender, options = {}) {
+                const row = document.createElement("div");
+                row.className = `message-row ${sender}`;
+
+                if (sender === "bot") {
+                    const avatar = document.createElement("div");
+                    avatar.className = "message-avatar";
+                    avatar.innerHTML = '<i class="fa-solid fa-user-doctor"></i>';
+                    row.appendChild(avatar);
+                }
+
+                const content = document.createElement("div");
+                content.className = "message-content";
+
+                const author = document.createElement("div");
+                author.className = "message-author";
+                author.textContent = sender === "user" ? "You" : "Medical Assistant";
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble";
+                if (options.error) bubble.classList.add("error-text");
+                bubble.textContent = text;
+
+                const time = document.createElement("div");
+                time.className = "message-time";
+                time.textContent = getTime();
+
+                content.append(author, bubble, time);
+                row.appendChild(content);
+
+                if (sender === "user") {
+                    const avatar = document.createElement("div");
+                    avatar.className = "message-avatar";
+                    avatar.style.background = "#edf0f3";
+                    avatar.style.color = "#61727d";
+                    avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+                    row.appendChild(avatar);
+                }
+
+                messages.appendChild(row);
+                scrollToBottom();
+                return row;
+            }
+
+            function showTyping() {
+                const row = document.createElement("div");
+                row.className = "message-row bot";
+                row.id = "typingIndicator";
+
+                const avatar = document.createElement("div");
+                avatar.className = "message-avatar";
+                avatar.innerHTML = '<i class="fa-solid fa-user-doctor"></i>';
+
+                const content = document.createElement("div");
+                content.className = "message-content";
+
+                const author = document.createElement("div");
+                author.className = "message-author";
+                author.textContent = "Medical Assistant is thinking";
+
+                const bubble = document.createElement("div");
+                bubble.className = "bubble typing";
+                bubble.innerHTML = "<span></span><span></span><span></span>";
+
+                content.append(author, bubble);
+                row.append(avatar, content);
+                messages.appendChild(row);
+                scrollToBottom();
+            }
+
+            function removeTyping() {
+                document.getElementById("typingIndicator")?.remove();
+            }
+
+            async function sendMessage(message) {
+                message = message.trim();
+
+                if (!message || isWaiting) return;
+
+                isWaiting = true;
+                sendButton.disabled = true;
+                input.disabled = true;
+                suggestions.style.display = "none";
+
+                addMessage(message, "user");
+                input.value = "";
+                showTyping();
+
+                try {
+                    const body = new URLSearchParams();
+                    body.append("msg", message);
+
+                    const response = await fetch("/get", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: body.toString()
+                    });
+
+                    const data = await response.text();
+
+                    removeTyping();
+
+                    if (!response.ok) {
+                        throw new Error(data || `Request failed (${response.status})`);
+                    }
+
+                    addMessage(data, "bot");
+                } catch (error) {
+                    removeTyping();
+                    console.error("Chat request failed:", error);
+
+                    addMessage(
+                        "Sorry, I couldn't get a response. Please check your connection and try again.",
+                        "bot",
+                        { error: true }
+                    );
+                } finally {
+                    isWaiting = false;
+                    sendButton.disabled = false;
+                    input.disabled = false;
+                    input.focus();
+                }
+            }
+
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                sendMessage(input.value);
+            });
+
+            document.querySelectorAll(".suggestion").forEach(button => {
+                button.addEventListener("click", () => {
+                    sendMessage(button.dataset.question || "");
+                });
+            });
+        </script>
+    </body>
+</html>

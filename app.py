@@ -49,7 +49,7 @@ rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
 @app.route("/")
 def index():
-    return render_template('chat.html')
+    return render_template('chat_v2.html')
 
 
 @app.route("/get", methods=["GET", "POST"])
