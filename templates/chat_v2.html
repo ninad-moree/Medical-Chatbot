@@ -31,6 +31,16 @@
                         <i class="fa-solid fa-shield-heart"></i>
                         Health information assistant
                     </div>
+
+                    <button
+                        type="button"
+                        id="themeToggle"
+                        class="theme-toggle"
+                        aria-label="Switch to dark mode"
+                        title="Switch theme"
+                    >
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
                 </div>
             </header>
 
@@ -145,6 +155,49 @@
             const messages = document.getElementById("messageFormeight");
             const sendButton = document.getElementById("send");
             const suggestions = document.getElementById("suggestions");
+            const themeToggle = document.getElementById("themeToggle");
+            const themeIcon = document.getElementById("themeIcon");
+
+            let currentTheme;
+
+            try {
+                currentTheme = localStorage.getItem("medicare-theme");
+            } catch (error) {
+                currentTheme = null;
+            }
+
+            if (currentTheme !== "light" && currentTheme !== "dark") {
+                currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+            }
+
+            function applyTheme(theme) {
+                currentTheme = theme;
+
+                document.documentElement.setAttribute("data-theme", theme);
+
+                themeIcon.className = theme === "dark"
+                    ? "fa-solid fa-sun"
+                    : "fa-solid fa-moon";
+
+                themeToggle.setAttribute(
+                    "aria-label",
+                    theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+                );
+
+                try {
+                    localStorage.setItem("medicare-theme", theme);
+                } catch (error) {
+                    // Theme switching still works if storage is unavailable.
+                }
+            }
+
+            applyTheme(currentTheme);
+
+            themeToggle.addEventListener("click", () => {
+                applyTheme(currentTheme === "dark" ? "light" : "dark");
+            });
 
             let isWaiting = false;
 
